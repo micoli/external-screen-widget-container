@@ -20,8 +20,10 @@ object ContainerRenderer {
         views.setContentDescription(R.id.widget_root, WidgetMarker.contentDescription(container.index))
         if (OverlayState.isEnabled(appContext)) {
             views.setViewVisibility(R.id.widget_placeholder, View.GONE)
+            OverlayPermissionNotification.cancel(appContext)
         } else {
             showServiceNeeded(appContext, views, container)
+            OverlayPermissionNotification.show(appContext)
         }
         AppWidgetManager.getInstance(appContext).updateAppWidget(appWidgetId, views)
     }

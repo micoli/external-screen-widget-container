@@ -1,17 +1,25 @@
 package org.micoli.coverwidgetcontainer.ui
 
+import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import org.micoli.coverwidgetcontainer.R
+import org.micoli.coverwidgetcontainer.cover.ContainerWidgetUpdater
 import org.micoli.coverwidgetcontainer.host.AddWidgetFlow
 
 class ConfigActivity : ComponentActivity() {
     private val viewModel by viewModels<ConfigViewModel>()
     private var addTarget: AddTarget? = null
+
+    private val notificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) ContainerWidgetUpdater.refreshAll(this)
+        }
 
     private val addWidgetFlow by lazy {
         AddWidgetFlow(
@@ -31,6 +39,7 @@ class ConfigActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.manager.bindToLifecycle(lifecycle)
+        notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         setContent {
             AppTheme {
                 ConfigApp(

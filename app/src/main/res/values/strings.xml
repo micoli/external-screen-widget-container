@@ -41,6 +41,9 @@
     <string name="overlay_service_label">Cover Widget Container overlay</string>
     <string name="overlay_service_description">Shows your live home screen widgets on top of the Container widgets placed on the cover screen. It only reads the position of those widgets and never collects any other content.</string>
     <string name="help_open_accessibility">Open Accessibility settings</string>
+    <string name="overlay_notification_channel">Overlay permission</string>
+    <string name="overlay_notification_title">Overlay not enabled</string>
+    <string name="overlay_notification_text">A Container widget is on the cover screen but the overlay is off. Tap to open Settings › Accessibility › Installed apps › Cover Widget Container overlay.</string>
     <string name="widget_needs_service">Enable the overlay in Accessibility settings</string>
     <string name="widget_empty">No widget on this page</string>
     <string name="editor_widget_no_room">No room left on this page: pick a smaller size or move it to another page.</string>

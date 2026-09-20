@@ -11,6 +11,9 @@ object ContainerWidgetUpdater {
     fun isPlaced(context: Context, index: Int): Boolean =
         placedIds(context, componentFor(context, index)).isNotEmpty()
 
+    fun isAnyPlaced(context: Context): Boolean =
+        (1..ContainerIndex.COUNT).any { isPlaced(context, it) }
+
     fun refresh(context: Context, index: Int) {
         val component = componentFor(context, index)
         val ids = placedIds(context, component)

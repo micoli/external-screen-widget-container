@@ -10,6 +10,11 @@ import org.micoli.coverwidgetcontainer.data.ContainerIndex
 
 abstract class ContainerWidgetProvider : AppWidgetProvider() {
 
+    override fun onDisabled(context: Context) {
+        if (ContainerWidgetUpdater.isAnyPlaced(context)) return
+        OverlayPermissionNotification.cancel(context)
+    }
+
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         val index = ContainerIndex.fromClassName(javaClass.name) ?: return
         val pendingResult = goAsync()
