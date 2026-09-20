@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regenerates the 20 container widget providers, their labels and their manifest receivers.
+# Regenerates, for the 20 containers: cover widget providers, labels and manifest receivers.
 set -euo pipefail
 
 COUNT=20
@@ -49,12 +49,18 @@ for i in $(seq 1 "$COUNT"); do
 EOF
 done
 
-RECEIVERS="$RECEIVERS" perl -0pi -e '
-  open my $f, "<", $ENV{RECEIVERS} or die;
-  my $r = do { local $/; <$f> };
-  close $f;
-  s{(<!-- BEGIN GENERATED RECEIVERS -->\n).*?(\s*<!-- END GENERATED RECEIVERS -->)}{$1$r$2}s
-' "$MANIFEST_FILE"
+replace_block() {
+  local marker="$1" file="$2"
+  BLOCK_FILE="$file" MARKER="$marker" perl -0pi -e '
+    open my $f, "<", $ENV{BLOCK_FILE} or die;
+    my $r = do { local $/; <$f> };
+    close $f;
+    my $m = $ENV{MARKER};
+    s{(<!-- BEGIN GENERATED $m -->\n).*?(\s*<!-- END GENERATED $m -->)}{$1$r$2}s
+  ' "$MANIFEST_FILE"
+}
+
+replace_block RECEIVERS "$RECEIVERS"
 
 rm -f "$RECEIVERS"
 echo "Generated $COUNT providers."

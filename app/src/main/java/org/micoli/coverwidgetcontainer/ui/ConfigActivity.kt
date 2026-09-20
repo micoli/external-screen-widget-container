@@ -1,15 +1,12 @@
 package org.micoli.coverwidgetcontainer.ui
 
-import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import org.micoli.coverwidgetcontainer.R
-import org.micoli.coverwidgetcontainer.cover.SnapshotService
 import org.micoli.coverwidgetcontainer.host.AddWidgetFlow
 
 class ConfigActivity : ComponentActivity() {
@@ -34,8 +31,6 @@ class ConfigActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.manager.bindToLifecycle(lifecycle)
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
-            .launch(Manifest.permission.POST_NOTIFICATIONS)
         setContent {
             AppTheme {
                 ConfigApp(
@@ -51,7 +46,6 @@ class ConfigActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        SnapshotService.start(this)
         viewModel.refreshPlaced()
     }
 

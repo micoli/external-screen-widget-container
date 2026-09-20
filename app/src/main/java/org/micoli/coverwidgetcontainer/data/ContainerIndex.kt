@@ -10,8 +10,10 @@ object ContainerIndex {
     fun providerClassName(packageName: String, index: Int): String =
         String.format(Locale.ROOT, "%s.cover.Container%02dProvider", packageName, index)
 
-    fun fromClassName(className: String): Int? {
-        val digits = providerClassPattern.find(className)?.groupValues?.get(1) ?: return null
+    fun fromClassName(className: String): Int? = parse(providerClassPattern, className)
+
+    private fun parse(pattern: Regex, className: String): Int? {
+        val digits = pattern.find(className)?.groupValues?.get(1) ?: return null
         return digits.toInt().takeIf { it in 1..COUNT }
     }
 }

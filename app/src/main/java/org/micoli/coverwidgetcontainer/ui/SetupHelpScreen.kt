@@ -3,7 +3,6 @@ package org.micoli.coverwidgetcontainer.ui
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
@@ -31,9 +30,12 @@ fun SetupHelpScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(stringResource(R.string.help_body))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { context.startActivity(Intent(Settings.ACTION_SETTINGS)) }) {
                     Text(stringResource(R.string.help_open_settings))
+                }
+                OutlinedButton(onClick = { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }) {
+                    Text(stringResource(R.string.help_open_accessibility))
                 }
                 if (goodLockIntent != null) {
                     OutlinedButton(onClick = { context.startActivity(goodLockIntent) }) {

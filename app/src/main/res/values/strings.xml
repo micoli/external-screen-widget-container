@@ -31,15 +31,14 @@
     <string name="add_widget_failed">Could not add this widget.</string>
 
     <string name="help_title">Cover screen setup</string>
-    <string name="help_body">1. Open Settings › Cover screen › Widgets and add one or more \"Container N\" widgets.\n\n2. Configure the content of each container from this app.\n\n3. The widgets are drawn directly inside the container on the cover screen. Use the ‹ › buttons to change page.\n\nWidgets are rendered as images and refresh live. A tap is forwarded to the widget element under your finger (approximate, 8×8 grid). Allow notifications so the refresh service can keep running.</string>
+    <string name="help_body">1. Open Settings › Cover screen › Widgets and add one or more \"Container N\" widgets.\n\n2. Configure the content of each container from this app.\n\n3. Enable \"Cover Widget Container overlay\" in Settings › Accessibility › Installed apps. If the switch is greyed out, open the app info › ⋮ › Allow restricted settings first.\n\nThe service is required: it draws your live, interactive widgets on top of each Container widget while the cover screen is unlocked. Without it a Container widget only shows its name.</string>
     <string name="help_open_settings">Open Settings</string>
     <string name="help_open_goodlock">Open Good Lock</string>
 
-
-    <string name="widget_empty">No widget on this page</string>
     <string name="widget_unavailable">Widget unavailable</string>
-    <string name="widget_prev_page">Previous page</string>
-    <string name="widget_next_page">Next page</string>
-    <string name="service_channel_name">Cover screen refresh</string>
-    <string name="service_notification_title">Keeping cover screen widgets up to date</string>
+    <string name="overlay_service_label">Cover Widget Container overlay</string>
+    <string name="overlay_service_description">Shows your live home screen widgets on top of the Container widgets placed on the cover screen. It only reads the position of those widgets and never collects any other content.</string>
+    <string name="help_open_accessibility">Open Accessibility settings</string>
+    <string name="widget_needs_service">Enable the overlay in Accessibility settings</string>
+    <string name="widget_empty">No widget on this page</string>
 </resources>

@@ -9,6 +9,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.view.ViewGroup
+import java.util.concurrent.ConcurrentHashMap
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -27,6 +29,7 @@ class HostedWidgetManager private constructor(private val context: Context) {
 
     // Main thread only: one host view per widget, so widget updates always reach the same instance.
     private val views = mutableMapOf<Int, SnapshotHostView>()
+    private val attachedIds: MutableSet<Int> = ConcurrentHashMap.newKeySet()
     private var listenerCount = 0
 
     private val _changes = MutableSharedFlow<Int>(extraBufferCapacity = CHANGES_BUFFER)
@@ -60,6 +63,23 @@ class HostedWidgetManager private constructor(private val context: Context) {
         created.onContentChanged = { _changes.tryEmit(appWidgetId) }
         views[appWidgetId] = created
         return created
+    }
+
+    // Attached views are laid out by a real window, so offscreen snapshots must leave them alone.
+    fun isAttached(appWidgetId: Int): Boolean = appWidgetId in attachedIds
+
+    fun attach(parent: ViewGroup, appWidgetId: Int) {
+        val hostView = view(appWidgetId) ?: return
+        (hostView.parent as? ViewGroup)?.removeView(hostView)
+        parent.addView(hostView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        attachedIds += appWidgetId
+    }
+
+    fun detach(parent: ViewGroup, appWidgetId: Int) {
+        val hostView = views[appWidgetId] ?: return
+        if (hostView.parent === parent) parent.removeView(hostView)
+        attachedIds -= appWidgetId
+        _changes.tryEmit(appWidgetId)
     }
 
     fun acquireListening() {
