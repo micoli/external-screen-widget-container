@@ -29,8 +29,12 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      # The default package list contains "tools", which sdkmanager no longer knows.
+      # Licenses are accepted by default and Gradle downloads what it needs.
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: ''
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
