@@ -98,14 +98,13 @@ class CoverOverlayService : AccessibilityService() {
     }
 
     // A widget can vanish from the tree for a frame while pages animate, so hiding needs consecutive misses.
-    // While a page slides the launcher animates the widget, so its bounds keep changing: the overlay stays hidden
-    // until the bounds have stopped moving, which keeps hosted widgets from being resized during the swipe.
+    // While a page slides the launcher animates the widget, so its bounds keep changing. The overlay stays frozen where it
+    // was and only moves once the bounds have stopped, which keeps hosted widgets from being resized during the swipe.
     private fun showWhenSettled(index: Int, marked: MarkedWidget) {
         val now = SystemClock.uptimeMillis()
         val tracked = trackedBounds[index]
         if (tracked == null || !tracked.bounds.isCloseTo(marked.bounds)) {
             trackedBounds[index] = TrackedBounds(Rect(marked.bounds), now)
-            overlays[index]?.hide()
             scheduleScan(SETTLE_MS)
             return
         }
