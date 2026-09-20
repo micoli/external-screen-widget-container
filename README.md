@@ -30,13 +30,20 @@ JAVA_HOME=<JDK 17+> ./gradlew assembleDebug
 ~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
+## Makefile
+`make` lists the targets. The useful ones:
+- `make deploy`: build, install and start the debug app (reinstalling disables the accessibility service, re-enable it).
+- `make adb-pair PAIR_PORT=… CODE=…`, `make adb-connect PORT=…`, `make adb-devices`: wireless debugging (`HOST` defaults to the phone IP).
+- `make logs`, `make a11y-status`, `make widgets-placed`, `make fold-state`, `make cover-dump`: inspect the phone.
+- `make release-tag VERSION=0.2.0`: create the release tag locally.
+
 ## CI and releases
 `.github/workflows/build.yml` runs the unit tests and builds the debug APK on every push to `main` and on pull requests.
 Download the APK from the run's artifacts (`cover-widget-container-debug-apk`).
 
 Pushing a tag `vX.Y.Z` publishes a GitHub release with the APK attached and generated notes:
 ```
-git tag -a v0.2.0 -m "Release 0.2.0"
+make release-tag VERSION=0.2.0
 git push origin v0.2.0
 ```
 The tag sets the APK version name (the CI run number is the version code). A tag with a dash (`v0.2.0-rc1`) is a pre-release.
