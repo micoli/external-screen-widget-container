@@ -67,7 +67,7 @@ class OverlayWindow(
         shownBounds = null
     }
 
-    private fun matchWeight() = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+    private fun matchWeight(weight: Float = 1f) = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, weight)
 
     private fun layoutParams(bounds: Rect) = WindowManager.LayoutParams(
         bounds.width(),
@@ -87,19 +87,20 @@ class OverlayWindow(
     private fun rebuild() {
         clearSlots()
         val current = container ?: return
-        val widgetIds = current.pages[pageIndex].widgetIds
-        widgetIds.forEach { appWidgetId -> addSlot(appWidgetId) }
+        val page = current.pages[pageIndex]
+        val widgetIds = page.widgetIds
+        widgetIds.forEach { appWidgetId -> addSlot(appWidgetId, page.heightOf(appWidgetId)) }
         if (widgetIds.isEmpty()) root.addView(emptyLabel(), matchWeight())
         if (current.pages.size > 1) root.addView(navigationBar(current.pages.size))
     }
 
-    private fun addSlot(appWidgetId: Int) {
+    private fun addSlot(appWidgetId: Int, height: Float) {
         val slot = FrameLayout(windowContext)
         slot.addOnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
             if (right <= left || bottom <= top) return@addOnLayoutChangeListener
             manager.view(appWidgetId)?.applySize((right - left) / density, (bottom - top) / density)
         }
-        root.addView(slot, matchWeight())
+        root.addView(slot, matchWeight(height))
         manager.attach(slot, appWidgetId)
         slots += slot to appWidgetId
     }

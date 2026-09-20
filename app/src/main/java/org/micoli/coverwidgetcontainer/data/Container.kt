@@ -3,7 +3,18 @@ package org.micoli.coverwidgetcontainer.data
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Page(val widgetIds: List<Int> = emptyList())
+data class Page(
+    val widgetIds: List<Int> = emptyList(),
+    val heights: Map<Int, Float> = emptyMap(),
+) {
+    fun heightOf(appWidgetId: Int): Float = heights[appWidgetId] ?: DEFAULT_HEIGHT
+
+    companion object {
+        const val DEFAULT_HEIGHT = 1f
+        const val MIN_HEIGHT = 0.5f
+        const val MAX_HEIGHT = 3f
+    }
+}
 
 @Serializable
 data class Container(
@@ -26,10 +37,17 @@ data class Container(
         updatePage(pageIndex) { it.copy(widgetIds = it.widgetIds + appWidgetId) }
 
     fun withWidgetRemoved(pageIndex: Int, appWidgetId: Int): Container =
-        updatePage(pageIndex) { it.copy(widgetIds = it.widgetIds - appWidgetId) }
+        updatePage(pageIndex) { it.copy(widgetIds = it.widgetIds - appWidgetId, heights = it.heights - appWidgetId) }
 
     fun withoutWidget(appWidgetId: Int): Container =
-        copy(pages = pages.map { it.copy(widgetIds = it.widgetIds - appWidgetId) })
+        copy(pages = pages.map { it.copy(widgetIds = it.widgetIds - appWidgetId, heights = it.heights - appWidgetId) })
+
+    fun withWidgetHeight(pageIndex: Int, appWidgetId: Int, height: Float): Container {
+        val page = pages.getOrNull(pageIndex) ?: return this
+        if (appWidgetId !in page.widgetIds) return this
+        val clamped = height.coerceIn(Page.MIN_HEIGHT, Page.MAX_HEIGHT)
+        return updatePage(pageIndex) { it.copy(heights = it.heights + (appWidgetId to clamped)) }
+    }
 
     fun withWidgetMoved(pageIndex: Int, appWidgetId: Int, offset: Int): Container {
         val ids = pages.getOrNull(pageIndex)?.widgetIds ?: return this

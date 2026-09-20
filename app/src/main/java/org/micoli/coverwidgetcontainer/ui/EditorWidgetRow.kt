@@ -25,6 +25,8 @@ fun EditorWidgetRow(
     label: String,
     appWidgetId: Int,
     manager: HostedWidgetManager,
+    height: Float,
+    onResize: (Float) -> Unit,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
     onMove: (offset: Int) -> Unit,
@@ -43,10 +45,11 @@ fun EditorWidgetRow(
                 Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.action_delete))
             }
         }
+        HeightSlider(height = height, onCommit = onResize)
         HostedWidgetView(
             appWidgetId = appWidgetId,
             manager = manager,
-            modifier = Modifier.fillMaxWidth().height(PREVIEW_HEIGHT),
+            modifier = Modifier.fillMaxWidth().height(PREVIEW_HEIGHT * height),
         )
     }
 }

@@ -9,6 +9,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.os.Process
+import android.os.UserHandle
+import android.util.Log
 import android.view.ViewGroup
 import java.util.concurrent.ConcurrentHashMap
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -35,8 +38,27 @@ class HostedWidgetManager private constructor(private val context: Context) {
     private val _changes = MutableSharedFlow<Int>(extraBufferCapacity = CHANGES_BUFFER)
     val changes: SharedFlow<Int> = _changes
 
-    fun installedProviders(): List<AppWidgetProviderInfo> =
-        appWidgetManager.installedProviders.filterNot { it.provider.packageName == context.packageName }
+    // The public API only returns home screen widgets; the hidden overload with a category mask returns all of them.
+    fun installedProviders(): List<AppWidgetProviderInfo> {
+        val publicProviders = appWidgetManager.installedProviders
+        val allProviders = allCategoryProviders() ?: publicProviders
+        Log.i(TAG, "widget providers: public=${publicProviders.size} all=${allProviders.size}")
+        return allProviders.filterNot { it.provider.packageName == context.packageName }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun allCategoryProviders(): List<AppWidgetProviderInfo>? = try {
+        val method = AppWidgetManager::class.java.getMethod(
+            "getInstalledProvidersForProfile",
+            Int::class.javaPrimitiveType,
+            UserHandle::class.java,
+            String::class.java,
+        )
+        method.invoke(appWidgetManager, ALL_CATEGORIES, Process.myUserHandle(), null) as List<AppWidgetProviderInfo>
+    } catch (e: ReflectiveOperationException) {
+        Log.w(TAG, "All-category widget listing unavailable, using the public list", e)
+        null
+    }
 
     fun allocateId(): Int = host.allocateAppWidgetId()
 
@@ -100,7 +122,9 @@ class HostedWidgetManager private constructor(private val context: Context) {
     }
 
     companion object {
+        private const val TAG = "HostedWidgetManager"
         private const val HOST_ID = 1024
+        private const val ALL_CATEGORIES = -1
         private const val CHANGES_BUFFER = 64
 
         @Volatile

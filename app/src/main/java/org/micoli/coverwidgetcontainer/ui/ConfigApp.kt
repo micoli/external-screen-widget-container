@@ -46,6 +46,7 @@ fun ConfigApp(
                     onNewWidget = { push(Screen.WidgetPicker(AddTarget(container.index, it))) },
                     onAssignWidget = { page, id -> viewModel.assignWidget(container.index, page, id) },
                     onRemoveWidget = { page, id -> viewModel.unassignWidget(container.index, page, id) },
+                    onResizeWidget = { page, id, height -> viewModel.resizeWidget(container.index, page, id, height) },
                     onMoveWidget = { page, id, offset -> viewModel.moveWidget(container.index, page, id, offset) },
                 ),
             )

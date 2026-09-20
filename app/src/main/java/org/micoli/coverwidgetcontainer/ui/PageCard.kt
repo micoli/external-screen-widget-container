@@ -58,6 +58,8 @@ fun PageCard(
                     label = library.firstOrNull { it.appWidgetId == appWidgetId }?.label ?: "#$appWidgetId",
                     appWidgetId = appWidgetId,
                     manager = manager,
+                    height = page.heightOf(appWidgetId),
+                    onResize = { height -> actions.onResizeWidget(pageIndex, appWidgetId, height) },
                     canMoveUp = position > 0,
                     canMoveDown = position < page.widgetIds.lastIndex,
                     onMove = { offset -> actions.onMoveWidget(pageIndex, appWidgetId, offset) },

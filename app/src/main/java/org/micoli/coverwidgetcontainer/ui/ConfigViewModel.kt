@@ -49,6 +49,9 @@ class ConfigViewModel(application: Application) : AndroidViewModel(application) 
     fun unassignWidget(index: Int, pageIndex: Int, appWidgetId: Int) =
         mutate(index) { it.withWidgetRemoved(pageIndex, appWidgetId) }
 
+    fun resizeWidget(index: Int, pageIndex: Int, appWidgetId: Int, height: Float) =
+        mutate(index) { it.withWidgetHeight(pageIndex, appWidgetId, height) }
+
     fun moveWidget(index: Int, pageIndex: Int, appWidgetId: Int, offset: Int) =
         mutate(index) { it.withWidgetMoved(pageIndex, appWidgetId, offset) }
 
