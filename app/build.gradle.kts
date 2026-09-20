@@ -21,6 +21,25 @@ android {
         versionName = appVersionName.get()
     }
 
+    // Only configured when the keystore is provided, so builds without secrets still work.
+    val releaseStoreFile = providers.gradleProperty("RELEASE_STORE_FILE")
+    signingConfigs {
+        if (releaseStoreFile.isPresent) {
+            create("release") {
+                storeFile = file(releaseStoreFile.get())
+                storePassword = providers.gradleProperty("RELEASE_STORE_PASSWORD").get()
+                keyAlias = providers.gradleProperty("RELEASE_KEY_ALIAS").get()
+                keyPassword = providers.gradleProperty("RELEASE_KEY_PASSWORD").get()
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.findByName("release")
+        }
+    }
+
     buildFeatures {
         compose = true
     }
