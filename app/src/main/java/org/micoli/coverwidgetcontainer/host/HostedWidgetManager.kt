@@ -12,6 +12,7 @@ import android.content.Intent
 import android.os.Process
 import android.os.UserHandle
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import java.util.concurrent.ConcurrentHashMap
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -78,20 +79,27 @@ class HostedWidgetManager private constructor(private val context: Context) {
     fun startConfigure(activity: Activity, appWidgetId: Int, requestCode: Int) =
         host.startAppWidgetConfigureActivityForResult(activity, appWidgetId, 0, requestCode, null)
 
-    fun view(appWidgetId: Int): SnapshotHostView? {
-        views[appWidgetId]?.let { return it }
+    // Widget content is inflated with the density of the view's context, so a view shown on another display than the
+    // one it was created for is recreated. An attached view is kept: the host only feeds updates to the newest view.
+    fun view(appWidgetId: Int, displayContext: Context = context): SnapshotHostView? {
+        val existing = views[appWidgetId]
+        if (existing != null && (isAttached(appWidgetId) || existing.densityDpi() == displayContext.densityDpi())) return existing
         val info = appWidgetManager.getAppWidgetInfo(appWidgetId) ?: return null
-        val created = host.createView(ContextWrapper(context), appWidgetId, info) as SnapshotHostView
+        val created = host.createView(ContextWrapper(displayContext), appWidgetId, info) as SnapshotHostView
         created.onContentChanged = { _changes.tryEmit(appWidgetId) }
         views[appWidgetId] = created
         return created
     }
 
+    private fun Context.densityDpi() = resources.displayMetrics.densityDpi
+
+    private fun View.densityDpi() = context.densityDpi()
+
     // Attached views are laid out by a real window, so offscreen snapshots must leave them alone.
     fun isAttached(appWidgetId: Int): Boolean = appWidgetId in attachedIds
 
     fun attach(parent: ViewGroup, appWidgetId: Int) {
-        val hostView = view(appWidgetId) ?: return
+        val hostView = view(appWidgetId, parent.context) ?: return
         (hostView.parent as? ViewGroup)?.removeView(hostView)
         parent.addView(hostView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         attachedIds += appWidgetId

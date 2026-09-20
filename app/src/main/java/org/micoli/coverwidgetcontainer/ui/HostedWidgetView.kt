@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntSize
@@ -32,6 +33,7 @@ fun HostedWidgetView(
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current.density
+    val context = LocalContext.current
     var size by remember { mutableStateOf(IntSize.Zero) }
     var preview by remember { mutableStateOf<ImageBitmap?>(null) }
     val version by produceState(initialValue = 0, appWidgetId) {
@@ -40,7 +42,7 @@ fun HostedWidgetView(
 
     LaunchedEffect(appWidgetId, size, version) {
         if (size == IntSize.Zero) return@LaunchedEffect
-        val view = manager.view(appWidgetId)
+        val view = manager.view(appWidgetId, context)
         preview = view?.let {
             WidgetSnapshotRenderer
                 .renderWidget(it, size.width, size.height, density, WidgetSnapshotRenderer.PAGE_BACKGROUND)
