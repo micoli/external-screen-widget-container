@@ -18,7 +18,7 @@ object ContainerRenderer {
         val container = ContainerRepository(appContext).get(containerIndex)
         val views = RemoteViews(appContext.packageName, R.layout.widget_container)
         views.setContentDescription(R.id.widget_root, WidgetMarker.contentDescription(container.index))
-        if (OverlayState.active) {
+        if (OverlayState.isEnabled(appContext)) {
             views.setViewVisibility(R.id.widget_placeholder, View.GONE)
         } else {
             showServiceNeeded(appContext, views, container)

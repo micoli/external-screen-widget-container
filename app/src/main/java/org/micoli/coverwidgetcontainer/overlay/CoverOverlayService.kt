@@ -38,7 +38,6 @@ class CoverOverlayService : AccessibilityService() {
         super.onServiceConnected()
         manager = HostedWidgetManager.get(this)
         manager.acquireListening()
-        OverlayState.active = true
         ContainerWidgetUpdater.refreshAll(this)
         scope.launch {
             ContainerRepository(applicationContext).containers.collect { latest ->
@@ -62,7 +61,6 @@ class CoverOverlayService : AccessibilityService() {
         overlays.values.forEach { it.hide() }
         overlays.clear()
         if (::manager.isInitialized) manager.releaseListening()
-        OverlayState.active = false
         ContainerWidgetUpdater.refreshAll(this)
         scope.cancel()
         super.onDestroy()

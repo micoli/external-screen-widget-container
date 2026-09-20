@@ -1,7 +1,16 @@
 package org.micoli.coverwidgetcontainer.overlay
 
-// True while the accessibility service is connected: cover widgets then only mark their position.
+import android.content.ComponentName
+import android.content.Context
+import android.provider.Settings
+
+// Read from the system setting rather than from the service itself, so a widget update never races the service start.
 object OverlayState {
-    @Volatile
-    var active: Boolean = false
+
+    fun isEnabled(context: Context): Boolean {
+        val enabled = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+            ?: return false
+        val component = ComponentName(context, CoverOverlayService::class.java)
+        return enabled.split(':').any { it == component.flattenToString() || it == component.flattenToShortString() }
+    }
 }
