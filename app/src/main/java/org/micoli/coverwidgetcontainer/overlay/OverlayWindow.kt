@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import org.micoli.coverwidgetcontainer.R
 import org.micoli.coverwidgetcontainer.data.Container
+import org.micoli.coverwidgetcontainer.data.GridCell
 import org.micoli.coverwidgetcontainer.host.HostedWidgetManager
 import org.micoli.coverwidgetcontainer.host.PageNavigation
 
@@ -67,7 +68,7 @@ class OverlayWindow(
         shownBounds = null
     }
 
-    private fun matchWeight(weight: Float = 1f) = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, weight)
+    private fun matchWeight() = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
 
     private fun layoutParams(bounds: Rect) = WindowManager.LayoutParams(
         bounds.width(),
@@ -88,19 +89,29 @@ class OverlayWindow(
         clearSlots()
         val current = container ?: return
         val page = current.pages[pageIndex]
-        val widgetIds = page.widgetIds
-        widgetIds.forEach { appWidgetId -> addSlot(appWidgetId, page.heightOf(appWidgetId)) }
-        if (widgetIds.isEmpty()) root.addView(emptyLabel(), matchWeight())
+        if (page.widgetIds.isEmpty()) {
+            root.addView(emptyLabel(), matchWeight())
+        } else {
+            addGrid(page.widgetIds, page.placement())
+        }
         if (current.pages.size > 1) root.addView(navigationBar(current.pages.size))
     }
 
-    private fun addSlot(appWidgetId: Int, height: Float) {
+    private fun addGrid(widgetIds: List<Int>, placement: List<GridCell?>) {
+        val grid = GridPageLayout(windowContext, (GAP_DP * density).toInt())
+        widgetIds.zip(placement).forEach { (appWidgetId, cell) ->
+            if (cell != null) addSlot(grid, appWidgetId, cell)
+        }
+        root.addView(grid, matchWeight())
+    }
+
+    private fun addSlot(grid: GridPageLayout, appWidgetId: Int, cell: GridCell) {
         val slot = FrameLayout(windowContext)
         slot.addOnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
             if (right <= left || bottom <= top) return@addOnLayoutChangeListener
             manager.view(appWidgetId)?.applySize((right - left) / density, (bottom - top) / density)
         }
-        root.addView(slot, matchWeight(height))
+        grid.addCell(slot, cell)
         manager.attach(slot, appWidgetId)
         slots += slot to appWidgetId
     }
@@ -145,6 +156,7 @@ class OverlayWindow(
 
     private companion object {
         const val CORNER_DP = 20f
+        const val GAP_DP = 6f
         const val NAV_PADDING_DP = 20f
         const val NAV_TEXT_SP = 22f
         val NAV_BACKGROUND = Color.argb(0x66, 0, 0, 0)

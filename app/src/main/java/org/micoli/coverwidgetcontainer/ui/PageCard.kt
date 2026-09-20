@@ -53,13 +53,17 @@ fun PageCard(
             if (page.widgetIds.isEmpty()) {
                 Text(stringResource(R.string.editor_page_empty), style = MaterialTheme.typography.bodyMedium)
             }
+            val labels = page.widgetIds.map { id -> library.firstOrNull { it.appWidgetId == id }?.label ?: "#$id" }
+            val placement = page.placement()
+            if (page.widgetIds.isNotEmpty()) PageGridPreview(labels, placement)
             page.widgetIds.forEachIndexed { position, appWidgetId ->
                 EditorWidgetRow(
-                    label = library.firstOrNull { it.appWidgetId == appWidgetId }?.label ?: "#$appWidgetId",
+                    label = labels[position],
                     appWidgetId = appWidgetId,
                     manager = manager,
-                    height = page.heightOf(appWidgetId),
-                    onResize = { height -> actions.onResizeWidget(pageIndex, appWidgetId, height) },
+                    size = page.sizeOf(appWidgetId),
+                    fits = placement[position] != null,
+                    onResize = { size -> actions.onResizeWidget(pageIndex, appWidgetId, size) },
                     canMoveUp = position > 0,
                     canMoveDown = position < page.widgetIds.lastIndex,
                     onMove = { offset -> actions.onMoveWidget(pageIndex, appWidgetId, offset) },

@@ -41,5 +41,5 @@
     <string name="help_open_accessibility">Open Accessibility settings</string>
     <string name="widget_needs_service">Enable the overlay in Accessibility settings</string>
     <string name="widget_empty">No widget on this page</string>
-    <string name="editor_widget_height">Height ×%1$s</string>
+    <string name="editor_widget_no_room">No room left on this page: pick a smaller size or move it to another page.</string>
 </resources>

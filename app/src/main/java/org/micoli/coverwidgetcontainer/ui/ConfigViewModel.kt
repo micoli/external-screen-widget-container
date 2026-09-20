@@ -14,6 +14,7 @@ import org.micoli.coverwidgetcontainer.data.Container
 import org.micoli.coverwidgetcontainer.data.ContainerIndex
 import org.micoli.coverwidgetcontainer.data.ContainerRepository
 import org.micoli.coverwidgetcontainer.data.HostedWidget
+import org.micoli.coverwidgetcontainer.data.WidgetSize
 import org.micoli.coverwidgetcontainer.data.WidgetLibraryRepository
 import org.micoli.coverwidgetcontainer.host.HostedWidgetManager
 
@@ -49,8 +50,8 @@ class ConfigViewModel(application: Application) : AndroidViewModel(application) 
     fun unassignWidget(index: Int, pageIndex: Int, appWidgetId: Int) =
         mutate(index) { it.withWidgetRemoved(pageIndex, appWidgetId) }
 
-    fun resizeWidget(index: Int, pageIndex: Int, appWidgetId: Int, height: Float) =
-        mutate(index) { it.withWidgetHeight(pageIndex, appWidgetId, height) }
+    fun resizeWidget(index: Int, pageIndex: Int, appWidgetId: Int, size: WidgetSize) =
+        mutate(index) { it.withWidgetSize(pageIndex, appWidgetId, size) }
 
     fun moveWidget(index: Int, pageIndex: Int, appWidgetId: Int, offset: Int) =
         mutate(index) { it.withWidgetMoved(pageIndex, appWidgetId, offset) }

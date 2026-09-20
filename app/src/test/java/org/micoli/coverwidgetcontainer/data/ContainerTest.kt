@@ -56,19 +56,18 @@ class ContainerTest {
     }
 
     @Test
-    fun `sets a widget height clamped to the allowed range`() {
+    fun `defaults to the 1x2 strip and stores a chosen size`() {
         val filled = container.withWidgetAdded(0, 7)
-        assertEquals(1f, filled.pages[0].heightOf(7), 0f)
-        assertEquals(2f, filled.withWidgetHeight(0, 7, 2f).pages[0].heightOf(7), 0f)
-        assertEquals(Page.MAX_HEIGHT, filled.withWidgetHeight(0, 7, 99f).pages[0].heightOf(7), 0f)
-        assertEquals(Page.MIN_HEIGHT, filled.withWidgetHeight(0, 7, 0f).pages[0].heightOf(7), 0f)
+        assertEquals(WidgetSize.ONE_BY_TWO, filled.pages[0].sizeOf(7))
+        assertEquals(WidgetSize.TWO_BY_TWO, filled.withWidgetSize(0, 7, WidgetSize.TWO_BY_TWO).pages[0].sizeOf(7))
     }
 
     @Test
-    fun `ignores height for a widget not on the page and drops it on removal`() {
+    fun `ignores size for a widget not on the page and drops it on removal`() {
         val filled = container.withWidgetAdded(0, 7)
-        assertSame(filled, filled.withWidgetHeight(0, 8, 2f))
-        assertEquals(1f, filled.withWidgetHeight(0, 7, 2f).withWidgetRemoved(0, 7).pages[0].heightOf(7), 0f)
-        assertEquals(emptyMap<Int, Float>(), filled.withWidgetHeight(0, 7, 2f).withoutWidget(7).pages[0].heights)
+        assertSame(filled, filled.withWidgetSize(0, 8, WidgetSize.TWO_BY_TWO))
+        val resized = filled.withWidgetSize(0, 7, WidgetSize.TWO_BY_TWO)
+        assertEquals(WidgetSize.DEFAULT, resized.withWidgetRemoved(0, 7).pages[0].sizeOf(7))
+        assertEquals(emptyMap<Int, WidgetSize>(), resized.withoutWidget(7).pages[0].sizes)
     }
 }

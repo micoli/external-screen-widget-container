@@ -5,15 +5,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Page(
     val widgetIds: List<Int> = emptyList(),
-    val heights: Map<Int, Float> = emptyMap(),
+    val sizes: Map<Int, WidgetSize> = emptyMap(),
 ) {
-    fun heightOf(appWidgetId: Int): Float = heights[appWidgetId] ?: DEFAULT_HEIGHT
+    fun sizeOf(appWidgetId: Int): WidgetSize = sizes[appWidgetId] ?: WidgetSize.DEFAULT
 
-    companion object {
-        const val DEFAULT_HEIGHT = 1f
-        const val MIN_HEIGHT = 0.5f
-        const val MAX_HEIGHT = 3f
-    }
+    fun placement(): List<GridCell?> = PageGrid.place(widgetIds.map(::sizeOf))
 }
 
 @Serializable
@@ -37,16 +33,15 @@ data class Container(
         updatePage(pageIndex) { it.copy(widgetIds = it.widgetIds + appWidgetId) }
 
     fun withWidgetRemoved(pageIndex: Int, appWidgetId: Int): Container =
-        updatePage(pageIndex) { it.copy(widgetIds = it.widgetIds - appWidgetId, heights = it.heights - appWidgetId) }
+        updatePage(pageIndex) { it.copy(widgetIds = it.widgetIds - appWidgetId, sizes = it.sizes - appWidgetId) }
 
     fun withoutWidget(appWidgetId: Int): Container =
-        copy(pages = pages.map { it.copy(widgetIds = it.widgetIds - appWidgetId, heights = it.heights - appWidgetId) })
+        copy(pages = pages.map { it.copy(widgetIds = it.widgetIds - appWidgetId, sizes = it.sizes - appWidgetId) })
 
-    fun withWidgetHeight(pageIndex: Int, appWidgetId: Int, height: Float): Container {
+    fun withWidgetSize(pageIndex: Int, appWidgetId: Int, size: WidgetSize): Container {
         val page = pages.getOrNull(pageIndex) ?: return this
         if (appWidgetId !in page.widgetIds) return this
-        val clamped = height.coerceIn(Page.MIN_HEIGHT, Page.MAX_HEIGHT)
-        return updatePage(pageIndex) { it.copy(heights = it.heights + (appWidgetId to clamped)) }
+        return updatePage(pageIndex) { it.copy(sizes = it.sizes + (appWidgetId to size)) }
     }
 
     fun withWidgetMoved(pageIndex: Int, appWidgetId: Int, offset: Int): Container {
