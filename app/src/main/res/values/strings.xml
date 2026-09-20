@@ -28,6 +28,8 @@
     <string name="library_usage">Used in %d pages</string>
 
     <string name="picker_title">Pick a widget</string>
+    <string name="picker_search_hint">Search widgets or apps</string>
+    <string name="picker_search_clear">Clear search</string>
     <string name="add_widget_failed">Could not add this widget.</string>
 
     <string name="help_title">Cover screen setup</string>
