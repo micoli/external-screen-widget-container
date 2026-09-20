@@ -1,7 +1,6 @@
 package org.micoli.coverwidgetcontainer.overlay
 
 import android.content.Context
-import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import org.micoli.coverwidgetcontainer.data.GridCell
@@ -21,31 +20,18 @@ class GridPageLayout(context: Context, private val gapPx: Int) : ViewGroup(conte
         val height = MeasureSpec.getSize(heightMeasureSpec)
         setMeasuredDimension(width, height)
         cells.forEach { (view, cell) ->
-            val bounds = boundsOf(cell, width, height)
+            val bounds = PageGrid.cellBounds(cell, width, height, gapPx)
             view.measure(
-                MeasureSpec.makeMeasureSpec(bounds.width(), MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(bounds.height(), MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(bounds.width, MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(bounds.height, MeasureSpec.EXACTLY),
             )
         }
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         cells.forEach { (view, cell) ->
-            val bounds = boundsOf(cell, right - left, bottom - top)
+            val bounds = PageGrid.cellBounds(cell, right - left, bottom - top, gapPx)
             view.layout(bounds.left, bounds.top, bounds.right, bounds.bottom)
         }
-    }
-
-    private fun boundsOf(cell: GridCell, width: Int, height: Int): Rect {
-        val cellWidth = (width - gapPx * (PageGrid.COLUMNS - 1)) / PageGrid.COLUMNS
-        val cellHeight = (height - gapPx * (PageGrid.ROWS - 1)) / PageGrid.ROWS
-        val left = cell.column * (cellWidth + gapPx)
-        val top = cell.row * (cellHeight + gapPx)
-        return Rect(
-            left,
-            top,
-            left + cell.columnSpan * cellWidth + (cell.columnSpan - 1) * gapPx,
-            top + cell.rowSpan * cellHeight + (cell.rowSpan - 1) * gapPx,
-        )
     }
 }

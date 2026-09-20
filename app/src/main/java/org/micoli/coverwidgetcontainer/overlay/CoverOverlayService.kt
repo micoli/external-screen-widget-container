@@ -24,13 +24,12 @@ import org.micoli.coverwidgetcontainer.host.HostedWidgetManager
 
 class CoverOverlayService : AccessibilityService() {
     private class MarkedWidget(val displayId: Int, val bounds: Rect)
-    private class TrackedBounds(val bounds: Rect, val since: Long)
 
     private val handler = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val overlays = mutableMapOf<Int, OverlayWindow>()
     private val missedScans = mutableMapOf<Int, Int>()
-    private val trackedBounds = mutableMapOf<Int, TrackedBounds>()
+    private val settleTracker = SettleTracker(SETTLE_MS, BOUNDS_TOLERANCE_PX)
     private var containers = emptyList<Container>()
     private lateinit var manager: HostedWidgetManager
 
@@ -97,31 +96,17 @@ class CoverOverlayService : AccessibilityService() {
         }
     }
 
-    // A widget can vanish from the tree for a frame while pages animate, so hiding needs consecutive misses.
     // While a page slides the launcher animates the widget, so its bounds keep changing. The overlay stays frozen where it
     // was and only moves once the bounds have stopped, which keeps hosted widgets from being resized during the swipe.
     private fun showWhenSettled(index: Int, marked: MarkedWidget) {
-        val now = SystemClock.uptimeMillis()
-        val tracked = trackedBounds[index]
-        if (tracked == null || !tracked.bounds.isCloseTo(marked.bounds)) {
-            trackedBounds[index] = TrackedBounds(Rect(marked.bounds), now)
-            scheduleScan(SETTLE_MS)
-            return
+        val bounds = Bounds(marked.bounds.left, marked.bounds.top, marked.bounds.right, marked.bounds.bottom)
+        when (val state = settleTracker.observe(index, bounds, SystemClock.uptimeMillis())) {
+            is SettleTracker.State.Settling -> scheduleScan(state.remainingMs)
+            SettleTracker.State.Settled -> showOverlay(index, marked)
         }
-        val remaining = SETTLE_MS - (now - tracked.since)
-        if (remaining > 0) {
-            scheduleScan(remaining)
-            return
-        }
-        showOverlay(index, marked)
     }
 
-    private fun Rect.isCloseTo(other: Rect): Boolean =
-        kotlin.math.abs(left - other.left) <= BOUNDS_TOLERANCE_PX &&
-            kotlin.math.abs(top - other.top) <= BOUNDS_TOLERANCE_PX &&
-            kotlin.math.abs(right - other.right) <= BOUNDS_TOLERANCE_PX &&
-            kotlin.math.abs(bottom - other.bottom) <= BOUNDS_TOLERANCE_PX
-
+    // A widget can vanish from the tree for a frame while pages animate, so hiding needs consecutive misses.
     private fun hideAfterMisses(index: Int) {
         val misses = (missedScans[index] ?: 0) + 1
         if (misses < MISSES_BEFORE_HIDE) {
@@ -129,7 +114,7 @@ class CoverOverlayService : AccessibilityService() {
             return
         }
         missedScans.remove(index)
-        trackedBounds.remove(index)
+        settleTracker.forget(index)
         overlays[index]?.hide()
     }
 

@@ -2,6 +2,11 @@ package org.micoli.coverwidgetcontainer.data
 
 data class GridCell(val row: Int, val column: Int, val rowSpan: Int, val columnSpan: Int)
 
+data class CellBounds(val left: Int, val top: Int, val right: Int, val bottom: Int) {
+    val width: Int get() = right - left
+    val height: Int get() = bottom - top
+}
+
 object PageGrid {
     const val ROWS = 2
     const val COLUMNS = 2
@@ -10,6 +15,20 @@ object PageGrid {
     fun place(sizes: List<WidgetSize>): List<GridCell?> {
         val occupied = Array(ROWS) { BooleanArray(COLUMNS) }
         return sizes.map { size -> findSpot(occupied, size)?.also { markOccupied(occupied, it) } }
+    }
+
+    // Pixel rectangle of a cell in a page of the given size, with gapPx between cells.
+    fun cellBounds(cell: GridCell, width: Int, height: Int, gapPx: Int): CellBounds {
+        val cellWidth = (width - gapPx * (COLUMNS - 1)) / COLUMNS
+        val cellHeight = (height - gapPx * (ROWS - 1)) / ROWS
+        val left = cell.column * (cellWidth + gapPx)
+        val top = cell.row * (cellHeight + gapPx)
+        return CellBounds(
+            left,
+            top,
+            left + cell.columnSpan * cellWidth + (cell.columnSpan - 1) * gapPx,
+            top + cell.rowSpan * cellHeight + (cell.rowSpan - 1) * gapPx,
+        )
     }
 
     private fun findSpot(occupied: Array<BooleanArray>, size: WidgetSize): GridCell? {

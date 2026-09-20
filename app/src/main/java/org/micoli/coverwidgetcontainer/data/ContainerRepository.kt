@@ -1,6 +1,7 @@
 package org.micoli.coverwidgetcontainer.data
 
 import android.content.Context
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -9,8 +10,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 
-class ContainerRepository(context: Context) {
-    private val dataStore = context.applicationContext.appDataStore
+class ContainerRepository(private val dataStore: DataStore<Preferences>) {
+    constructor(context: Context) : this(context.applicationContext.appDataStore)
 
     val containers: Flow<List<Container>> = dataStore.data.map(::decode)
 
