@@ -5,6 +5,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
+val appVersionName = providers.gradleProperty("appVersionName").orElse("0.1.0")
+val appVersionCode = providers.gradleProperty("appVersionCode").map(String::toInt).orElse(1)
+
 android {
     namespace = "org.micoli.coverwidgetcontainer"
     compileSdk = 35
@@ -14,8 +17,8 @@ android {
         applicationId = "org.micoli.coverwidgetcontainer"
         minSdk = 34
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = appVersionCode.get()
+        versionName = appVersionName.get()
     }
 
     buildFeatures {
