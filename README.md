@@ -1,5 +1,11 @@
 # Cover Widget Container
 
+[![Build](https://github.com/micoli/external-screen-widget-container/actions/workflows/build.yml/badge.svg)](https://github.com/micoli/external-screen-widget-container/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/micoli/external-screen-widget-container?include_prereleases)](https://github.com/micoli/external-screen-widget-container/releases)
+![Android 14+](https://img.shields.io/badge/Android-14%2B-3DDC84?logo=android&logoColor=white)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF?logo=kotlin&logoColor=white)
+![Galaxy Z Flip](https://img.shields.io/badge/Samsung-Galaxy%20Z%20Flip-1428A0?logo=samsung&logoColor=white)
+
 Hosts home-screen widgets and draws them, live and interactive, on the Samsung Galaxy Z Flip cover screen.
 
 ## How it works
